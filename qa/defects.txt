@@ -1,0 +1,67 @@
+=============
+Summary: Duplicate parameters use the incorrect value
+
+Found by: Test 0
+
+Details: Likely caused by quantified group capturing in Regex (as in, (group)+), which returns the last instance of the given group when the match info is accessed.
+
+EXPECTED: The resulting URL should use the first (left-most) value for each valid key
+ACTUAL: The resulting URL uses the last (right-most) value
+
+Example:
+INPUT:      ?a=1&a=2&a=3
+EXPECTED:   ?a=1
+ACTUAL:     ?a=3
+
+
+=============
+Summary: Parameters with keys of different cases aren't considered duplicates
+
+Found by: Test 1
+
+INPUT:      ?a=1&A=1
+EXPECTED:   ?a=1
+ACTUAL:     ?a=1&A=1
+
+=============
+Summary: Excluded parameters with different cases don't match
+
+Found by: Test 4
+
+INPUT:      ?a=1&A=1&b=2, ['A']
+EXPECTED:   ?b=2
+ACTUAL:     ?a=1&b=2
+
+=============
+Summary: Excluding parameters that don't appear in the URL filters out ALL parameters
+
+Found by: Test 7, Test 8
+
+INPUT:      ?a=1&b=2, ['extra']
+EXPECTED:   ?a=1&b=2
+ACTUAL:     ?
+
+=============
+Summary: URLs that start with http:// or https:// break validation
+
+Found by: Test 11, 12
+
+=============
+Summary: Not all domains are maintained
+
+Details: At most, 3 domains are maintained: "www" if it is present, then the first non-www domain, then the final domain (which will always be .gov)
+
+Found by: Test 13
+
+INPUT:      aus.tin.t.ex.as.com
+EXPECTED:   aus.tin.t.ex.as.gov
+ACTUAL:     aus.gov
+
+=============
+Summary: Resource paths are not maintained
+
+Found by Test 15, 16
+
+INPUT:      www.austintexas.a/b/c/file.type?one=first&two=2
+EXPECTED:   www.austintexas.gov/b/c/file.type?one=first&two=2
+ACTUAL:     www.austintexas.gov?one=first&two=2
